@@ -1,0 +1,128 @@
+package com.ahmetyasar.taskmanagerapp
+
+import android.os.Bundle
+import android.widget.Button
+import android.widget.EditText
+import android.widget.LinearLayout
+import android.widget.Toast
+import androidx.activity.viewModels
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.ahmetyasar.taskmanagerapp.adapter.TaskAdapter
+import com.ahmetyasar.taskmanagerapp.data.local.entity.Task
+import com.ahmetyasar.taskmanagerapp.viewmodel.TaskViewModel
+import android.widget.TextView
+
+class MainActivity : AppCompatActivity() {
+
+    private val taskViewModel: TaskViewModel by viewModels()
+    private lateinit var taskAdapter: TaskAdapter
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+
+        val etTaskTitle = findViewById<EditText>(R.id.etTaskTitle)
+        val etTaskDescription = findViewById<EditText>(R.id.etTaskDescription)
+        val btnAddSampleTask = findViewById<Button>(R.id.btnAddSampleTask)
+        val recyclerViewTasks = findViewById<RecyclerView>(R.id.recyclerViewTasks)
+        val tvEmptyState = findViewById<TextView>(R.id.tvEmptyState)
+
+        taskAdapter = TaskAdapter(
+            onItemClick = { task ->
+                showUpdateDialog(task)
+            },
+            onItemLongClick = { task ->
+                taskViewModel.deleteTask(task)
+                Toast.makeText(this, "Görev silindi", Toast.LENGTH_SHORT).show()
+            },
+            onCheckBoxClick = { updatedTask ->
+                taskViewModel.updateTask(updatedTask)
+
+                if (updatedTask.isCompleted) {
+                    Toast.makeText(this, "Görev tamamlandı", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(this, "Görev tekrar aktif", Toast.LENGTH_SHORT).show()
+                }
+            }
+        )
+
+        recyclerViewTasks.adapter = taskAdapter
+        recyclerViewTasks.layoutManager = LinearLayoutManager(this)
+
+        taskViewModel.allTasks.observe(this) { tasks ->
+            taskAdapter.setTasks(tasks)
+
+            if (tasks.isEmpty()) {
+                tvEmptyState.visibility = android.view.View.VISIBLE
+                recyclerViewTasks.visibility = android.view.View.GONE
+            } else {
+                tvEmptyState.visibility = android.view.View.GONE
+                recyclerViewTasks.visibility = android.view.View.VISIBLE
+            }
+        }
+        btnAddSampleTask.setOnClickListener {
+            val title = etTaskTitle.text.toString().trim()
+            val description = etTaskDescription.text.toString().trim()
+
+            if (title.isEmpty()) {
+                Toast.makeText(this, "Lütfen görev başlığı gir", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            val task = Task(
+                title = title,
+                description = description,
+                isCompleted = false
+            )
+
+            taskViewModel.insertTask(task)
+
+            Toast.makeText(this, "Görev eklendi", Toast.LENGTH_SHORT).show()
+
+            etTaskTitle.text.clear()
+            etTaskDescription.text.clear()
+        }
+    }
+
+    private fun showUpdateDialog(task: Task) {
+        val editTitle = EditText(this)
+        val editDescription = EditText(this)
+
+        editTitle.setText(task.title)
+        editTitle.hint = "Görev başlığı"
+
+        editDescription.setText(task.description)
+        editDescription.hint = "Görev açıklaması"
+
+        val layout = LinearLayout(this)
+        layout.orientation = LinearLayout.VERTICAL
+        layout.setPadding(50, 40, 50, 10)
+
+        layout.addView(editTitle)
+        layout.addView(editDescription)
+
+        AlertDialog.Builder(this)
+            .setTitle("Görevi Düzenle")
+            .setView(layout)
+            .setPositiveButton("Kaydet") { _, _ ->
+                val updatedTitle = editTitle.text.toString().trim()
+                val updatedDescription = editDescription.text.toString().trim()
+
+                if (updatedTitle.isNotEmpty()) {
+                    val updatedTask = task.copy(
+                        title = updatedTitle,
+                        description = updatedDescription
+                    )
+                    taskViewModel.updateTask(updatedTask)
+                    Toast.makeText(this, "Görev güncellendi", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(this, "Başlık boş olamaz", Toast.LENGTH_SHORT).show()
+                }
+            }
+            .setNegativeButton("İptal", null)
+            .show()
+    }
+}
