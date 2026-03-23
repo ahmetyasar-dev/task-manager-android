@@ -31,4 +31,8 @@ class TaskViewModel(application: Application) : AndroidViewModel(application) {
     fun deleteTask(task: Task) = viewModelScope.launch {
         repository.deleteTask(task)
     }
+
+    fun searchTasks(query: String): LiveData<List<Task>> {
+        return repository.searchTasks(query)
+    }
 }

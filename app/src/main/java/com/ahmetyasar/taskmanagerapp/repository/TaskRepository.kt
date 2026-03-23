@@ -19,4 +19,8 @@ class TaskRepository(private val taskDao: TaskDao) {
     suspend fun deleteTask(task: Task) {
         taskDao.deleteTask(task)
     }
+
+    fun searchTasks(query: String): LiveData<List<Task>> {
+        return taskDao.searchTasks("%$query%")
+    }
 }

@@ -59,6 +59,16 @@
         android:textColor="#FFFFFF"
         android:background="@drawable/bg_button"
         android:layout_marginBottom="18dp" />
+    <EditText
+        android:id="@+id/etSearchTask"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Görev ara"
+        android:layout_marginBottom="16dp"
+        android:minHeight="48dp"
+        android:padding="12dp"
+        android:background="@drawable/bg_input" />
+
 
     <TextView
         android:id="@+id/tvEmptyState"

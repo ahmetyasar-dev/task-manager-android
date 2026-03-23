@@ -14,6 +14,8 @@ import com.ahmetyasar.taskmanagerapp.adapter.TaskAdapter
 import com.ahmetyasar.taskmanagerapp.data.local.entity.Task
 import com.ahmetyasar.taskmanagerapp.viewmodel.TaskViewModel
 import android.widget.TextView
+import android.text.Editable
+import android.text.TextWatcher
 
 class MainActivity : AppCompatActivity() {
 
@@ -29,7 +31,43 @@ class MainActivity : AppCompatActivity() {
         val btnAddSampleTask = findViewById<Button>(R.id.btnAddSampleTask)
         val recyclerViewTasks = findViewById<RecyclerView>(R.id.recyclerViewTasks)
         val tvEmptyState = findViewById<TextView>(R.id.tvEmptyState)
+        val etSearchTask = findViewById<EditText>(R.id.etSearchTask)
 
+        etSearchTask.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                val query = s.toString()
+
+                if (query.isEmpty()) {
+                    taskViewModel.allTasks.observe(this@MainActivity) { tasks ->
+                        taskAdapter.setTasks(tasks)
+
+                        if (tasks.isEmpty()) {
+                            tvEmptyState.visibility = android.view.View.VISIBLE
+                            recyclerViewTasks.visibility = android.view.View.GONE
+                        } else {
+                            tvEmptyState.visibility = android.view.View.GONE
+                            recyclerViewTasks.visibility = android.view.View.VISIBLE
+                        }
+                    }
+                } else {
+                    taskViewModel.searchTasks(query).observe(this@MainActivity) { tasks ->
+                        taskAdapter.setTasks(tasks)
+
+                        if (tasks.isEmpty()) {
+                            tvEmptyState.visibility = android.view.View.VISIBLE
+                            recyclerViewTasks.visibility = android.view.View.GONE
+                        } else {
+                            tvEmptyState.visibility = android.view.View.GONE
+                            recyclerViewTasks.visibility = android.view.View.VISIBLE
+                        }
+                    }
+                }
+            }
+
+            override fun afterTextChanged(s: Editable?) {}
+        })
         taskAdapter = TaskAdapter(
             onItemClick = { task ->
                 showUpdateDialog(task)
