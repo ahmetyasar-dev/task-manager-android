@@ -21,4 +21,10 @@ interface TaskDao {
 
     @Query("SELECT * FROM tasks WHERE title LIKE :searchQuery OR description LIKE :searchQuery ORDER BY id DESC")
     fun searchTasks(searchQuery: String): LiveData<List<Task>>
+
+    @Query("SELECT * FROM tasks WHERE isCompleted = 0 ORDER BY id DESC")
+    fun getActiveTasks(): LiveData<List<Task>>
+
+    @Query("SELECT * FROM tasks WHERE isCompleted = 1 ORDER BY id DESC")
+    fun getCompletedTasks(): LiveData<List<Task>>
 }

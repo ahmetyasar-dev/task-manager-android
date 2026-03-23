@@ -32,6 +32,9 @@ class MainActivity : AppCompatActivity() {
         val recyclerViewTasks = findViewById<RecyclerView>(R.id.recyclerViewTasks)
         val tvEmptyState = findViewById<TextView>(R.id.tvEmptyState)
         val etSearchTask = findViewById<EditText>(R.id.etSearchTask)
+        val btnFilterAll = findViewById<Button>(R.id.btnFilterAll)
+        val btnFilterActive = findViewById<Button>(R.id.btnFilterActive)
+        val btnFilterCompleted = findViewById<Button>(R.id.btnFilterCompleted)
 
         etSearchTask.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
@@ -122,6 +125,38 @@ class MainActivity : AppCompatActivity() {
 
             etTaskTitle.text.clear()
             etTaskDescription.text.clear()
+        }
+        btnFilterAll.setOnClickListener {
+            taskViewModel.allTasks.observe(this) { tasks ->
+                updateTaskList(tasks, recyclerViewTasks, tvEmptyState)
+            }
+        }
+
+        btnFilterActive.setOnClickListener {
+            taskViewModel.getActiveTasks().observe(this) { tasks ->
+                updateTaskList(tasks, recyclerViewTasks, tvEmptyState)
+            }
+        }
+
+        btnFilterCompleted.setOnClickListener {
+            taskViewModel.getCompletedTasks().observe(this) { tasks ->
+                updateTaskList(tasks, recyclerViewTasks, tvEmptyState)
+            }
+        }
+    }
+    private fun updateTaskList(
+        tasks: List<Task>,
+        recyclerViewTasks: RecyclerView,
+        tvEmptyState: TextView
+    ) {
+        taskAdapter.setTasks(tasks)
+
+        if (tasks.isEmpty()) {
+            tvEmptyState.visibility = android.view.View.VISIBLE
+            recyclerViewTasks.visibility = android.view.View.GONE
+        } else {
+            tvEmptyState.visibility = android.view.View.GONE
+            recyclerViewTasks.visibility = android.view.View.VISIBLE
         }
     }
 

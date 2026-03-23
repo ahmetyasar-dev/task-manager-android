@@ -23,4 +23,11 @@ class TaskRepository(private val taskDao: TaskDao) {
     fun searchTasks(query: String): LiveData<List<Task>> {
         return taskDao.searchTasks("%$query%")
     }
+    fun getActiveTasks(): LiveData<List<Task>> {
+        return taskDao.getActiveTasks()
+    }
+
+    fun getCompletedTasks(): LiveData<List<Task>> {
+        return taskDao.getCompletedTasks()
+    }
 }

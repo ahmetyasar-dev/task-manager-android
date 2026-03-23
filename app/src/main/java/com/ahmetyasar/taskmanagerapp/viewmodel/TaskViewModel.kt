@@ -35,4 +35,11 @@ class TaskViewModel(application: Application) : AndroidViewModel(application) {
     fun searchTasks(query: String): LiveData<List<Task>> {
         return repository.searchTasks(query)
     }
+    fun getActiveTasks(): LiveData<List<Task>> {
+        return repository.getActiveTasks()
+    }
+
+    fun getCompletedTasks(): LiveData<List<Task>> {
+        return repository.getCompletedTasks()
+    }
 }
