@@ -7,7 +7,7 @@ import androidx.room.RoomDatabase
 import com.ahmetyasar.taskmanagerapp.data.local.dao.TaskDao
 import com.ahmetyasar.taskmanagerapp.data.local.entity.Task
 
-@Database(entities = [Task::class], version = 1, exportSchema = false)
+@Database(entities = [Task::class], version = 2, exportSchema = false)
 abstract class TaskDatabase : RoomDatabase() {
 
     abstract fun taskDao(): TaskDao
@@ -22,7 +22,9 @@ abstract class TaskDatabase : RoomDatabase() {
                     context.applicationContext,
                     TaskDatabase::class.java,
                     "task_database"
-                ).build()
+                )
+                    .fallbackToDestructiveMigration()
+                    .build()
                 INSTANCE = instance
                 instance
             }

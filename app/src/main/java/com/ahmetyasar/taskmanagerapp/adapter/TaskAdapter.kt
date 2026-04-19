@@ -39,6 +39,13 @@ class TaskAdapter(
         holder.checkBoxCompleted.setOnCheckedChangeListener(null)
         holder.checkBoxCompleted.isChecked = currentTask.isCompleted
 
+        val tvTaskTime = holder.itemView.findViewById<TextView>(R.id.tvTaskTime)
+        tvTaskTime.text = if (currentTask.time.isNotEmpty()) {
+            "Saat: ${currentTask.time}"
+        } else {
+            "Saat yok"
+        }
+
         if (currentTask.isCompleted) {
             holder.tvTaskTitle.paintFlags =
                 holder.tvTaskTitle.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG

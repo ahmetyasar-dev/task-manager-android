@@ -16,11 +16,16 @@ import com.ahmetyasar.taskmanagerapp.viewmodel.TaskViewModel
 import android.widget.TextView
 import android.text.Editable
 import android.text.TextWatcher
+import android.app.TimePickerDialog
+import java.util.Calendar
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
 
     private val taskViewModel: TaskViewModel by viewModels()
     private lateinit var taskAdapter: TaskAdapter
+    private var selectedTime: String = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,6 +40,19 @@ class MainActivity : AppCompatActivity() {
         val btnFilterAll = findViewById<Button>(R.id.btnFilterAll)
         val btnFilterActive = findViewById<Button>(R.id.btnFilterActive)
         val btnFilterCompleted = findViewById<Button>(R.id.btnFilterCompleted)
+        val btnSelectTime = findViewById<Button>(R.id.btnSelectTime)
+        val tvSelectedTime = findViewById<TextView>(R.id.tvSelectedTime)
+
+        btnSelectTime.setOnClickListener {
+            val calendar = Calendar.getInstance()
+            val hour = calendar.get(Calendar.HOUR_OF_DAY)
+            val minute = calendar.get(Calendar.MINUTE)
+
+            TimePickerDialog(this, { _, selectedHour, selectedMinute ->
+                selectedTime = String.format("%02d:%02d", selectedHour, selectedMinute)
+                tvSelectedTime.text = "Seçilen Saat: $selectedTime"
+            }, hour, minute, true).show()
+        }
 
         etSearchTask.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
@@ -116,7 +134,8 @@ class MainActivity : AppCompatActivity() {
             val task = Task(
                 title = title,
                 description = description,
-                isCompleted = false
+                isCompleted = false,
+                time = selectedTime
             )
 
             taskViewModel.insertTask(task)
@@ -125,6 +144,8 @@ class MainActivity : AppCompatActivity() {
 
             etTaskTitle.text.clear()
             etTaskDescription.text.clear()
+            selectedTime = ""
+            tvSelectedTime.text = "Saat seçilmedi"
         }
         btnFilterAll.setOnClickListener {
             taskViewModel.allTasks.observe(this) { tasks ->
@@ -197,5 +218,6 @@ class MainActivity : AppCompatActivity() {
             }
             .setNegativeButton("İptal", null)
             .show()
+
     }
 }
